@@ -20,6 +20,10 @@
 // actually running can be read off a screenshot instead of inferred.
 globalThis.INNER_SELF_OC_BUILD = "Ver.2_8_0";
 
+// WTG patch: config/control cards use WTG's system card type, which WTG's
+// timestamping skips (see WTG-PATCHES.md).
+const SETTING = 'zz_Settings';
+
 /**
  * Main control panel for scenario creator convenience
  * Settings defined here will override their counterparts elsewhere
@@ -662,7 +666,7 @@ function InnerSelf(hook, appendOnly = false) {
          * @type {Object}
          */
         const template = {
-            type: "class",
+            type: SETTING,
             title: "Configure \nInner Self",
             // The config card entry contains the main settings
             entry: [
@@ -6676,7 +6680,7 @@ function AutoCards(inHook, inText, inStop) {
         function getConfigureCardTemplate() {
             const names = getControlVariants().configure;
             return O.f({
-                type: AC.config.defaultCardType,
+                type: SETTING,
                 title: names.title,
                 keys: names.keys,
                 entry: getConfigureCardEntry(),
@@ -6782,7 +6786,7 @@ function AutoCards(inHook, inText, inStop) {
         function getEnableCardTemplate() {
             const names = getControlVariants().enable;
             return O.f({
-                type: AC.config.defaultCardType,
+                type: SETTING,
                 title: names.title,
                 keys: names.keys,
                 entry: prose(
