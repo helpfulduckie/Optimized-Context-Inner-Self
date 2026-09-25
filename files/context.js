@@ -1,6 +1,6 @@
-InnerSelf("context");
 
 const modifier = (text) => {
-    return { text, stop };
+  InnerSelf("context");
+  return { text, stop };
 };
 modifier(text);

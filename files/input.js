@@ -1,6 +1,6 @@
-InnerSelf("input");
 
 const modifier = (text) => {
-    return { text };
+  InnerSelf("input");
+  return { text };
 };
 modifier(text);
