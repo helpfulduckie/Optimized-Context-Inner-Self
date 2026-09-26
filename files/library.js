@@ -240,7 +240,22 @@ globalThis.MainSettings = (class MainSettings {
  * Gives story characters the ability to learn, plan, and adapt over time
  * Inner Self is free and open-source for anyone! ❤️
  */
-function InnerSelf(hook) {
+function InnerSelf(hook, appendOnly = false) {
+    // ==================== OPTIMIZED CONTEXT GUARD ====================
+    //
+    // Under Optimized Context, AI Dungeon accepts a context hook's text only if
+    // it is the original context with text appended. Any other change -- one
+    // trim, one marker swap, one zero-width character removed -- discards the
+    // whole hook's context modification, including other scripts' appends in
+    // the same bundle. The context branch below rewrites the text in many
+    // places, so it runs on its own copy here, and the hook returns the
+    // original with only what the branch returns appended to it.
+    if (!appendOnly && ((hook === "context") || Number.isInteger(info?.maxChars)) && (info?.useCacheEfficient === true)) {
+        const original = text;
+        const appended = InnerSelf(hook, true);
+        text = original + ((typeof appended === "string") ? appended : "");
+        return;
+    }
     // ==================== TASK CARD SAFETY NET ====================
     //
     // This runs FIRST, on EVERY hook, before anything else in Inner Self.
