@@ -3397,7 +3397,8 @@ function AutoCards(inHook, inText, inStop) {
         globalThis.stop ??= false;
         AC.signal.maxChars = Math.abs(info?.maxChars || AC.signal.maxChars);
         if (HOOK === null) {
-            if (Number.isInteger(info.maxChars)) {
+            // Optimized Context discards the whole returned context if any of this cleanup rewrites it
+            if (Number.isInteger(info.maxChars) && !isCacheEfficient()) {
                 // AutoCards(null) is always invoked once after being declared within the shared library
                 // Context must be cleaned before passing text to the context modifier
                 // This measure is taken to ensure compatability with other scripts
@@ -4764,6 +4765,11 @@ function AutoCards(inHook, inText, inStop) {
             if (0 < AC.chronometer.postpone) {
                 CODOMAIN.initialize(TEXT);
                 break;
+            } else if (isCacheEfficient()) {
+                // Optimized Context: card memories, trimming and generation prompts all rewrite the context
+                // Pause everything below until Optimized Context is off, and pass the context through untouched
+                CODOMAIN.initialize(TEXT);
+                break;
             }
             // Fully implement Auto-Cards onContext
             const forceStep = AC.signal.recheckRetryOrErase;
@@ -5704,6 +5710,12 @@ function AutoCards(inHook, inText, inStop) {
                     CODOMAIN.initialize(output);
                 }
             } else if (AC.signal.swapControlCards) {
+                if (permitOutput()) {
+                    CODOMAIN.initialize(output);
+                }
+            } else if (isCacheEfficient()) {
+                // Optimized Context: no generation or compression prompt reached the model this turn
+                // Never capture this output as a card entry or memory summary, it is ordinary story text
                 if (permitOutput()) {
                     CODOMAIN.initialize(output);
                 }
@@ -8096,6 +8108,14 @@ function AutoCards(inHook, inText, inStop) {
     }
     function underQuarterInteger(someNumber) {
         return Math.floor(someNumber / 4);
+    }
+    // Is AI Dungeon's Optimized Context enabled? If so, context modifications may only append text
+    function isCacheEfficient() {
+        try {
+            return (info?.useCacheEfficient === true);
+        } catch (error) {
+            return false;
+        }
     }
     function getTurn() {
         if (Number.isInteger(info?.actionCount)) {
