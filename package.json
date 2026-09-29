@@ -1,0 +1,16 @@
+{
+  "name": "optimized-context-inner-self",
+  "private": true,
+  "description": "Inner Self for AI Dungeon, working under Optimized Context",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 60000
+  },
+  "devDependencies": {
+    "jest": "^30.3.0"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+# Local agent instructions; they point into a private vault
+CLAUDE.md
+AGENTS.md
