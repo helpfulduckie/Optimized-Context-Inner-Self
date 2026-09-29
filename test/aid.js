@@ -1,4 +1,4 @@
-// Minimal AI Dungeon sandbox for running Inner Self's real library and hook tabs under Jest.
+// Minimal AI Dungeon sandbox for running Inner Self's real library under Jest.
 // Each hook call gets a fresh VM context, like AI Dungeon, which reruns the Library tab before every hook.
 // state, storyCards and history persist across calls on the same Adventure.
 
@@ -11,6 +11,14 @@ const ROOT = path.join(__dirname, "..");
 // LewdLeah/Inner-Self src/library.js at ddae96d (v1.0.2), the stock behavior the fork is compared against.
 // Vendored because this repo shares no history with LewdLeah's, so a fresh clone can't `git show` it.
 const STOCK_LIBRARY = path.join(__dirname, "baseline", "library.js");
+
+// The hook tabs as LewdLeah's README gives them, rather than files/*.js: the wtg branch rewrites those
+// tabs for patchwork-press, and they only work once bundled. These tests cover the library on any branch.
+const HOOK_TABS = {
+    input: new vm.Script("InnerSelf(\"input\");\nconst modifier = (text) => ({ text });\nmodifier(text);", { filename: "input tab" }),
+    context: new vm.Script("InnerSelf(\"context\");\nconst modifier = (text) => ({ text, stop });\nmodifier(text);", { filename: "context tab" }),
+    output: new vm.Script("InnerSelf(\"output\");\nconst modifier = (text) => ({ text });\nmodifier(text);", { filename: "output tab" })
+};
 
 const scripts = new Map();
 
@@ -41,7 +49,7 @@ class Adventure {
         return returnCard ? this.storyCards[this.storyCards.length - 1] : this.storyCards.length - 1;
     }
 
-    // Run one hook tab. The tabs are the fork's own, which match LewdLeah's apart from comments.
+    // Run the Library tab, then one hook tab
     run(hook, text, { info = {} } = {}) {
         const context = vm.createContext({
             state: this.state,
@@ -62,7 +70,7 @@ class Adventure {
             vm.runInContext(`Math.random = () => ${this.random};`, context);
         }
         getScript(this.library).runInContext(context);
-        const result = getScript(path.join(ROOT, "files", `${hook}.js`)).runInContext(context);
+        const result = HOOK_TABS[hook].runInContext(context);
         // history may have been reassigned by the library's own validation
         this.history = context.history;
         return result;
