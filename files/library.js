@@ -290,10 +290,12 @@ function InnerSelf(hook, appendOnly = false) {
         // appear only in the pre-2.1 prompts, and any genuinely old card has
         // both of them.
     ];
-    // A card this build wrote carries the build stamp on its first line, and
-    // is never touched whatever it contains. Belt and braces: even if a marker
+    // A card this build wrote carries the build stamp in its Notes, and is
+    // never touched whatever it contains. Belt and braces: even if a marker
     // were mistakenly listed again, current output could not be eaten by it.
-    const OWN_STAMP = "// Inner Self " + globalThis.INNER_SELF_OC_BUILD;
+    // (WTG: the stamp lives in the Notes, which never reach the model, rather
+    // than on the Entry's first line, where it cost tokens on every task turn.)
+    const OWN_STAMP = "[build " + globalThis.INNER_SELF_OC_BUILD + "]";
     const sanitizeTaskCards = () => {
         try {
             if (!Array.isArray(globalThis.storyCards)) {
@@ -304,7 +306,7 @@ function InnerSelf(hook, appendOnly = false) {
                     continue;
                 }
                 const entry = (typeof card.entry === "string") ? card.entry : "";
-                if ((entry === "") || entry.includes(OWN_STAMP)) {
+                if ((entry === "") || String(card.description || "").includes(OWN_STAMP)) {
                     // Empty, or written by this build. Leave it alone.
                     continue;
                 }
@@ -1623,12 +1625,14 @@ function InnerSelf(hook, appendOnly = false) {
                 if (!card) {
                     return;
                 }
-                card.entry = `// Inner Self ${OC_BUILD}\n${String(body)}`.slice(0, 2000);
+                // WTG: no build stamp here. The Entry reaches the model, and the
+                // Notes below already carry the build for anyone checking.
+                card.entry = String(body).slice(0, 2000);
                 card.keys = THOUGHT_CARD_KEYS;
                 card.title = THOUGHT_CARD_TITLE;
                 card.description = `[build ${OC_BUILD}] triggers=${IS.triggers || "?"} route=card`
                     + ` useCacheEfficient=${(() => { try { return String(info.useCacheEfficient); } catch (e) { return "unreadable"; } })()}`
-                    + ` entry=${String(body).length + OC_BUILD.length + 18}chars\n`
+                    + ` entry=${card.entry.length}chars\n`
                     + "Written automatically every turn so Inner Self can ask for a thought while"
                     + " AI Dungeon's Optimized Context setting is on, which stops scripts adding to the context."
                     + " Editing this does nothing; it is overwritten each turn. Deleting it stops thoughts.";
@@ -2466,8 +2470,7 @@ The key must already exist and the thought is erased permanently. Choose the mos
                 // its own to anchor to when the scene belongs to someone else.
                 // Instructions can shed a section. Memory cannot shed anything
                 // and still be memory.
-                const stamp = `// Inner Self ${OC_BUILD}\n`.length;
-                const CARD_ROOM = 2000 - stamp - boundary.lower.length;
+                const CARD_ROOM = 2000 - boundary.lower.length;
                 const brainRaw = String(self || "");
                 // Reserve up to this much for the brain before the instructions
                 // are measured. Roughly five thoughts.

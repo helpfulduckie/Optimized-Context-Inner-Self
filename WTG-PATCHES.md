@@ -1,7 +1,7 @@
 # WTG patches
 
 > [!summary]
-> The `wtg` branch is XloSky's Optimized Context Inner Self, plus three general changes on their own branches, plus two commits that World Time Generator (WTG) needs. With Optimized Context off it behaves as LewdLeah's v1.0.2; with it on, it asks for thoughts through XloSky's task card and leaves the context untouched. WTG bundles `files/` from this branch through patchwork-press, as the `InnerSelf` component in `WTG-Working/package.json`. Everything else about WTG + Inner Self compatibility comes from bundle order.
+> The `wtg` branch is XloSky's Optimized Context Inner Self, plus three general changes on their own branches, plus the patches World Time Generator (WTG) needs. With Optimized Context off it behaves as LewdLeah's v1.0.2; with it on, it asks for thoughts through XloSky's task card and leaves the context untouched. WTG bundles `files/` from this branch through patchwork-press, as the `InnerSelf` component in `WTG-Working/package.json`. Everything else about WTG + Inner Self compatibility comes from bundle order.
 
 ## Branches
 
@@ -11,7 +11,7 @@ Each branch is the one above it plus its own commits.
 - **`oc-autocards-passthrough`:** one commit that pauses the embedded Auto-Cards under Optimized Context. With `info.useCacheEfficient` true, its context branch passes the text through and starts no generation, its output branch never captures a story output as a card, and its library-scope cleanup is skipped. Nothing in it is WTG-specific, so it's kept separate as a candidate to offer upstream. The same change is in helpfulduckie/Optimized-Context-Localized-Languages, which has the tests for it.
 - **`oc-append-only`:** under Optimized Context, `InnerSelf(hook)` runs the context branch on its own copy and returns the original context plus whatever that branch returns to append, which is nothing. AI Dungeon discards a `// @cache-compatible` tab's whole change unless it is a pure append, so any edit Inner Self made would also cancel WTG's and LoLa's appends in the same bundle.
 - **`non-oc-parity`:** with Optimized Context off, the context branch uses LewdLeah's original prompts and her choice between them: FORGET when the brain is full, otherwise ASSIGN below 20,000 characters or CHOICE above. XloSky's condensed 1,960-character set exists to fit a story card and is used only on the card route. XloSky's narration-over-dialogue trigger scoring and self-name thought filter stay on both routes. This branch also holds the Jest suite (`npm test`), which compares the non-OC context with LewdLeah's v1.0.2 byte for byte, using her library vendored at `test/baseline/library.js`.
-- **`wtg`:** `non-oc-parity` plus the two WTG patches below.
+- **`wtg`:** `non-oc-parity` plus the WTG patches below.
 
 ## Versions
 
@@ -19,7 +19,7 @@ Each branch is the one above it plus its own commits.
 
 | Version | XloSky commit | This fork's changes |
 |---|---|---|
-| `2.8.0-wtg.1` | `0b6808a` (`Ver.2_8_0`) | Auto-Cards paused, append-only guard, non-OC parity with LewdLeah's v1.0.2, WTG patches |
+| `2.8.0-wtg.1` | `0b6808a` (`Ver.2_8_0`) | Auto-Cards paused, append-only guard, non-OC parity with LewdLeah's v1.0.2, WTG patches (card types, no task card stamp, glue) |
 
 ## Remotes
 
@@ -30,6 +30,7 @@ Each branch is the one above it plus its own commits.
 ## The patches
 
 - **Config and control cards are typed `zz_Settings`.** WTG's `excludeCardTypes` skips its system card type, which keeps these cards from getting timestamped. The cards are "Configure Inner Self", "Configure Auto-Cards" and the Auto-Cards enable card. The change is a `const SETTING` near the top of `files/library.js` plus three `type:` lines. WTG's `is.thoughts.test.js` asserts the Configure Inner Self card's type.
+- **The task card's Entry carries no build stamp.** XloSky's build started the `🧠 Inner Self Task — do not edit` card's Entry with `// Inner Self <build>`, which reached the model on every task turn. The build now appears only in the card's Notes, and the task card cleanup recognizes this build's card by the `[build <build>]` tag there instead. The card is kept free of WTG timestamps by its title, which WTG lists in `SYSTEM_CARD_TITLES`, rather than by its type, so cards in existing adventures are covered too.
 - **Glue calls `InnerSelf(hook)` inside `modifier`.** Patchwork-press wraps each hook tab in a function whose parameter is `text`. InnerSelf's bare `text = …` writes reach the returned text only when the call is lexically inside that wrapper. `files/package.json` is the component manifest patchwork-press reads.
 
 ## Bundle order and flag

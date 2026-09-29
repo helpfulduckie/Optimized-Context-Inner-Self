@@ -134,6 +134,23 @@ describe("Optimized Context on", () => {
         expect(card.entry.length).toBeLessThanOrEqual(2000);
     });
 
+    test("the task card's Entry carries no build stamp; the Notes do", () => {
+        const { adventure } = measuredContext({ maxChars: 8000, storyChars: 3000, brain: 5 }, { random: 0.5, optimized: true });
+        const card = adventure.taskCard();
+        expect(card.entry).not.toContain("Inner Self Ver");
+        expect(card.entry.startsWith("<|task|><SYSTEM>")).toBe(true);
+        expect(card.description).toMatch(/^\[build Ver\.[^\]]+\] /);
+    });
+
+    test("the task card cleanup leaves this build's card alone on the hooks that follow", () => {
+        const { adventure } = measuredContext({ maxChars: 8000, storyChars: 3000, brain: 5 }, { random: 0.5, optimized: true });
+        const written = adventure.taskCard().entry;
+        adventure.output("The steward bows.");
+        adventure.input("You wait.");
+        expect(adventure.taskCard().entry).toBe(written);
+        expect(adventure.taskCard().keys).not.toBe("");
+    });
+
     test("turning the setting off deactivates the task card", () => {
         const adventure = adventureWithAlice({ random: 0.5 });
         adventure.context(buildContext(), { optimized: true });
