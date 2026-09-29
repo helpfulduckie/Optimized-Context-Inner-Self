@@ -13,6 +13,14 @@ Each branch is the one above it plus its own commits.
 - **`non-oc-parity`:** with Optimized Context off, the context branch uses LewdLeah's original prompts and her choice between them: FORGET when the brain is full, otherwise ASSIGN below 20,000 characters or CHOICE above. XloSky's condensed 1,960-character set exists to fit a story card and is used only on the card route. XloSky's narration-over-dialogue trigger scoring and self-name thought filter stay on both routes. This branch also holds the Jest suite (`npm test`), which compares the non-OC context with LewdLeah's v1.0.2 byte for byte, using her library vendored at `test/baseline/library.js`.
 - **`wtg`:** `non-oc-parity` plus the two WTG patches below.
 
+## Versions
+
+**This fork's copy is versioned `<XloSky's version>-wtg.<n>`.** The version appears in `files/package.json`, which patchwork-press prints in WTG's bundle headers, and in `INNER_SELF_OC_BUILD` in `files/library.js`, which prints on the first line of the Configure Inner Self card. Bump `n` whenever any branch here changes what `wtg` bundles. Reset it to `1` on a rebase onto a new XloSky version. If XloSky changes code without changing their version, keep counting `n`.
+
+| Version | XloSky commit | This fork's changes |
+|---|---|---|
+| `2.8.0-wtg.1` | `0b6808a` (`Ver.2_8_0`) | Auto-Cards paused, append-only guard, non-OC parity with LewdLeah's v1.0.2, WTG patches |
+
 ## Remotes
 
 - **`upstream`:** XloSky/Optimized-Context-Inner-Self. `main` tracks it unchanged.
@@ -35,4 +43,5 @@ Each branch is the one above it plus its own commits.
 1. `git fetch upstream`, fast-forward `main` to `upstream/main`, then rebase each branch onto the one above it in order: `oc-autocards-passthrough`, `oc-append-only`, `non-oc-parity`, `wtg`. If upstream has taken a branch's change, drop that branch and rebase the next one onto its parent.
 2. **Expect conflicts in `non-oc-parity` whenever XloSky edits the prompt block.** Keep XloSky's card-route changes and keep the non-OC `else` branch assembling LewdLeah's prompts. If the `wtg` rebase conflicts on a `type:` line, reapply `SETTING` to the three card templates: the Inner Self config `template`, `getConfigureCardTemplate` and `getEnableCardTemplate`.
 3. Run `npm test` here, then in `WTG-Working`. Here, a failing byte-for-byte test means the non-OC route no longer matches LewdLeah's. In `WTG-Working`, the non-OC assertions in `is.thoughts.test.js` and `sandbox.built.test.js` key on LewdLeah's prompt text ("SUMMARY OF WHAT YOU MUST DO"), and the Optimized Context test keys on the task card's `## 1) THOUGHT-WRITING FORMAT` heading. If upstream rewrites the card's instruction set, update that marker.
-4. Push `oc-autocards-passthrough`, `oc-append-only` and `non-oc-parity` to `origin`, then `git push --force-with-lease origin wtg`.
+4. Set the new version in `files/package.json` and `INNER_SELF_OC_BUILD`, and add a row to the Versions table.
+5. Push `oc-autocards-passthrough`, `oc-append-only` and `non-oc-parity` to `origin`, then `git push --force-with-lease origin wtg`.

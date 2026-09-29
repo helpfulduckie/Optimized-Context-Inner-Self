@@ -2,14 +2,14 @@
 //
 //                             USE THIS VERSION
 //
-//                        InnerSelf_OC_Ver.2_8_0.js
+//                     InnerSelf_OC_Ver.2_8_0-wtg.1.js
 //
 //   Paste this whole file as your ENTIRE "Library" tab. Replace what is there,
 //   do not add to it. If an older copy of Inner Self is left anywhere below,
 //   JavaScript silently lets the later copy win and this one never runs.
 //
 //   To confirm this version is live, the "Configure Inner Self" card's first
-//   line reads: === Optimized Context patch build Ver.2_8_0 ===
+//   line reads: === Optimized Context patch build Ver.2_8_0-wtg.1 ===
 //
 // ============================================================================
 
@@ -18,7 +18,8 @@
 // Build identifier for the Optimized Context patch. Printed on the
 // "Configure Inner Self" card and on the task card, so the version that is
 // actually running can be read off a screenshot instead of inferred.
-globalThis.INNER_SELF_OC_BUILD = "Ver.2_8_0";
+// The -wtg.N suffix marks this fork's copy; see WTG-PATCHES.md.
+globalThis.INNER_SELF_OC_BUILD = "Ver.2_8_0-wtg.1";
 
 // WTG patch: config/control cards use WTG's system card type, which WTG's
 // timestamping skips (see WTG-PATCHES.md).
