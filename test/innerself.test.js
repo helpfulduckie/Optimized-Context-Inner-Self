@@ -134,11 +134,12 @@ describe("Optimized Context on", () => {
         expect(card.entry.length).toBeLessThanOrEqual(2000);
     });
 
-    test("the task card's Entry carries no build stamp; the Notes do", () => {
+    test("the task card's Entry starts with the instructions: no build stamp or boundary marker", () => {
         const { adventure } = measuredContext({ maxChars: 8000, storyChars: 3000, brain: 5 }, { random: 0.5, optimized: true });
         const card = adventure.taskCard();
         expect(card.entry).not.toContain("Inner Self Ver");
-        expect(card.entry.startsWith("<|task|><SYSTEM>")).toBe(true);
+        expect(card.entry).not.toContain("<|task|>");
+        expect(card.entry.startsWith("<SYSTEM>")).toBe(true);
         expect(card.description).toMatch(/^\[build Ver\.[^\]]+\] /);
     });
 
@@ -149,6 +150,17 @@ describe("Optimized Context on", () => {
         adventure.input("You wait.");
         expect(adventure.taskCard().entry).toBe(written);
         expect(adventure.taskCard().keys).not.toBe("");
+    });
+
+    test("a task card left by an older build is cleared on the next hook", () => {
+        const adventure = new Adventure({ random: 0.5 });
+        adventure.addStoryCard(
+            "the,a,an,you", "// Inner Self Ver.2_5_0\n<|task|><SYSTEM>\n# OLD INSTRUCTIONS\n</SYSTEM>", "class",
+            "🧠 Inner Self Task — do not edit", "[build Ver.2_5_0] route=card"
+        );
+        adventure.input("You wait.");
+        expect(adventure.taskCard().entry).toBe("");
+        expect(adventure.taskCard().keys).toBe("");
     });
 
     test("turning the setting off deactivates the task card", () => {

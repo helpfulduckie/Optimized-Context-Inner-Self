@@ -314,6 +314,8 @@ function InnerSelf(hook, appendOnly = false) {
                 // ordinary story card, or somebody's lore, is none of this
                 // function's business.
                 const title = String(card.title || "").replace(/[\s\u200B-\u200D]+/g, " ");
+                // (WTG: this build's card has no <|task|>; the check still
+                // catches cards from builds that wrote one.)
                 const looksLikeTask = entry.includes("<|task|>")
                     || /inner\s*self\s*task/i.test(title)
                     || OLD_FORMAT_MARKERS.some(m => entry.includes(m));
@@ -2470,16 +2472,18 @@ The key must already exist and the thought is erased permanently. Choose the mos
                 // its own to anchor to when the scene belongs to someone else.
                 // Instructions can shed a section. Memory cannot shed anything
                 // and still be memory.
-                const CARD_ROOM = 2000 - boundary.lower.length;
+                // WTG: the card holds no <|task|> boundary marker. In the
+                // context that marker is swapped out before the model sees it;
+                // nothing does that to a card, so it reached the model as-is.
+                const CARD_ROOM = 2000;
                 const brainRaw = String(self || "");
                 // Reserve up to this much for the brain before the instructions
                 // are measured. Roughly five thoughts.
                 const BRAIN_RESERVE = 620;
                 const reserved = Math.min(brainRaw.length, BRAIN_RESERVE);
                 const set = skipTask ? "" : measureInstructions(CARD_ROOM - reserved);
-                const tail = (set === "") ? "" : `${boundary.lower}${set}`;
                 const brainBlock = (set === "") ? "" : fitBrain(brainRaw, CARD_ROOM - set.length);
-                writeThoughtCard((set === "") ? "" : `${tail}${brainBlock}`);
+                writeThoughtCard((set === "") ? "" : `${set}${brainBlock}`);
                 text = `${text.trim()}\n\n`;
             } else {
                 deactivateThoughtCard();

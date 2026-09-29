@@ -19,7 +19,7 @@ Each branch is the one above it plus its own commits.
 
 | Version | XloSky commit | This fork's changes |
 |---|---|---|
-| `2.8.0-wtg.1` | `0b6808a` (`Ver.2_8_0`) | Auto-Cards paused, append-only guard, non-OC parity with LewdLeah's v1.0.2, WTG patches (card types, no task card stamp, glue) |
+| `2.8.0-wtg.1` | `0b6808a` (`Ver.2_8_0`) | Auto-Cards paused, append-only guard, non-OC parity with LewdLeah's v1.0.2, WTG patches (card types, task card Entry without stamp or marker, glue) |
 
 ## Remotes
 
@@ -30,7 +30,7 @@ Each branch is the one above it plus its own commits.
 ## The patches
 
 - **Config and control cards are typed `zz_Settings`.** WTG's `excludeCardTypes` skips its system card type, which keeps these cards from getting timestamped. The cards are "Configure Inner Self", "Configure Auto-Cards" and the Auto-Cards enable card. The change is a `const SETTING` near the top of `files/library.js` plus three `type:` lines. WTG's `is.thoughts.test.js` asserts the Configure Inner Self card's type.
-- **The task card's Entry carries no build stamp.** XloSky's build started the `🧠 Inner Self Task — do not edit` card's Entry with `// Inner Self <build>`, which reached the model on every task turn. The build now appears only in the card's Notes, and the task card cleanup recognizes this build's card by the `[build <build>]` tag there instead. The card is kept free of WTG timestamps by its title, which WTG lists in `SYSTEM_CARD_TITLES`, rather than by its type, so cards in existing adventures are covered too.
+- **The task card's Entry starts with the instructions.** XloSky's build started the `🧠 Inner Self Task — do not edit` card's Entry with `// Inner Self <build>` and the `<|task|>` boundary marker, and both reached the model on every task turn; in the context route the marker is swapped out, but nothing does that to a card. The build now appears only in the card's Notes, and the task card cleanup recognizes this build's card by the `[build <build>]` tag there instead. The cleanup still treats `<|task|>` in an Entry as the sign of an older build's card. The card is kept free of WTG timestamps by its title, which WTG lists in `SYSTEM_CARD_TITLES`, rather than by its type, so cards in existing adventures are covered too.
 - **Glue calls `InnerSelf(hook)` inside `modifier`.** Patchwork-press wraps each hook tab in a function whose parameter is `text`. InnerSelf's bare `text = …` writes reach the returned text only when the call is lexically inside that wrapper. `files/package.json` is the component manifest patchwork-press reads.
 
 ## Bundle order and flag
